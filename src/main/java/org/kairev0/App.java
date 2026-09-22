@@ -1,47 +1,79 @@
 package org.kairev0;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
 public class App {
-    public static void main( String[] args ) {
+    public static void main( String[] args ) throws IOException, ClassNotFoundException {
         Scanner scanner = new Scanner(System.in);
-        Map<String, String> accounts = new HashMap<>();
+        Map<String, Player> accounts = null;
+        Player player = null;
 
-        System.out.println("Welcome to Game!");
-        System.out.println("Please enter login: ");
-        String name = scanner.nextLine();
-        System.out.println("Please enter password: ");
-        String password = scanner.nextLine();
-        if (accounts.containsKey(name)) {
-            System.out.println("Auth");
-            System.out.println("Account:");
-            System.out.println("Login: " + name);
-            System.out.println("Score" + );
-        } else {
-            System.out.println("Registration");
-            Player player = new Player(name, 0);
-            accounts.put(name, password);
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("accounts.txt"))) {
+            accounts = (Map<String, Player>) ois.readObject();
+            System.out.println("Welcome to Game!");
+            System.out.print("Please enter login: ");
+            String login = scanner.nextLine();
+            System.out.print("Please enter password: ");
+            String password = scanner.nextLine();
+            if (accounts.containsKey(login) && accounts.get(login).getPassword().equals(password)) {
+                player = accounts.get(login);
+                System.out.println("Auth");
+                System.out.println("Account:");
+                System.out.println("Login: " + player.getName());
+                System.out.println("Score: " + player.getScore());
+            } else {
+                System.out.println("Registration");
+                player = new Player(login, password, 0);
+                accounts.put(login, player);
+                try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("accounts.txt"))) {
+                    oos.writeObject(accounts);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("accounts.txt"))) {
+                accounts = new HashMap<>();
+                oos.writeObject(accounts);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        System.exit(0);
 
-        Player player1 = new Player(new Id(1), "Player 1", 100);
-        Player player2 = new Player(new Id(2), "Player 2", 100);
-        Game game = new Game(new Id(1), player1, player2);
+        Player opponent = null;
+        if (accounts != null) {
+            List<Player> players = new ArrayList<>(accounts.values());
+            Collections.shuffle(players);
+            opponent = players.get(0);
+            if (accounts != null && !accounts.isEmpty()) {
+                int tries = 0;
+                while (opponent.equals(player) && tries++ < 10) {
+                    Collections.shuffle(players);
+                    opponent = players.get(0);
+                }
+                if (opponent.equals(player)) {
+                    System.out.println("Tries are exhausted");
+                    System.exit(0);
+                }
+            } else {
+                System.exit(0);
+            }
+        }
+        System.out.println("Your opponent is " + opponent.getName());
+
+        Game game = new Game(new Id(1), player, opponent);
         String input;
         int[][] field = null;
         int gameCycle = 0;
-        Player currentPlayer = player1;
+        Player currentPlayer = player;
         isWinTest();
         while (!isWin(field)) {
             if (gameCycle%2 == 0) {
-                currentPlayer = player1;
+                currentPlayer = player;
             } else {
-                currentPlayer = player2;
+                currentPlayer = opponent;
             }
             System.out.println("Current player is " + currentPlayer.getName());
+            System.out.println("Your opponent is " + opponent.getName());
             System.out.println("Field:");
             field = game.getField();
             printField(field);
@@ -50,7 +82,7 @@ public class App {
             String[] coords = input.split(" ");
             int x = Integer.parseInt(coords[0]);
             int y = Integer.parseInt(coords[1]);
-            if (currentPlayer.getName().equals(player1.getName())) {
+            if (currentPlayer.getName().equals(player.getName())) {
                 if (x >= 0 && x <= 2 && y >= 0 && y <= 2 && !(field[x][y]==1 || field[x][y]==2)) {
                     field[x][y] = 1;
                 } else {
@@ -58,7 +90,7 @@ public class App {
                     continue;
                 }
             } else {
-                currentPlayer = player2;
+                currentPlayer = opponent;
                 if (x >= 0 && x <= 2 && y >= 0 && y <= 2 && !(field[x][y]==1 || field[x][y]==2)) {
                     field[x][y] = 2;
                 } else {
