@@ -1,20 +1,21 @@
 package org.kairev0;
 
+import org.kairev0.Authorization.AuthService;
+import org.kairev0.Authorization.Player;
+
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 /*
 ERRORS:
-1. Нарушен игровой цикл (нет трёх раундов, вероятно, проблема в isWin)
-2. Неправильно определяется игрок и его оппонент (currentPlayer и currentOpponent)
-3. Нарушена авторизация, нужно поправить сравнение по паролю
-4. Нужно проверить систему начисления очков и игровые циклы
+1. Нарушен игровой цикл (нет трёх раундов, вероятно, проблема в isWin) [РЕШЕНО]
+2. Неправильно определяется игрок и его оппонент (currentPlayer и currentOpponent) [РЕШЕНО]
+3. Нарушена авторизация, нужно поправить сравнение по паролю [РЕШЕНО]
+4. Нужно проверить систему начисления очков и игровые циклы [РЕШЕНО]
  */
 
 /*
-1. Сыграть одну успешную одноразовую партию
+1. Сыграть одну успешную одноразовую партию [РЕШЕНО]
 2. Разделить аккаунт и игровой цикл
 3. Сделать программу постоянной, а не одноразовой
 4. Настроить обмен между сокетами
@@ -30,20 +31,34 @@ public class App {
         /* --- Tests --- */
 
         /* --- authorization window --- */
+        // Приветствуем пользователя
         System.out.println("Welcome to Game!");
+        // 0.1. Ввод логина
         System.out.print("Please enter login: ");
         String login = scanner.nextLine();
+        // 0.2. Ввод пароля
         System.out.print("Please enter password: ");
         String password = scanner.nextLine();
-        Map<String, Player> accounts = authorization(login, password);
-        Player player = accounts.get(login);
+        // Авторизация
+        Player player = AuthService.authorization(login, password);
+        System.out.println(player);
+        // Получение всех пользователей
+        Map<String, Player> players = AuthService.getAllPlayers();
+        System.out.println(players);
+        // Сохранение пользователя
+        if (player == null) {
+            AuthService.save(new Player(login, password, 0));
+        }
         /* --- authorization window --- */
+        System.exit(0);
 
         /* --- opponent selection --- */
-        Player opponent = opponentRandomizer(accounts, player);
+        Player opponent = opponentRandomizer(players, player);
         /* --- opponent selection --- */
 
         /* --- Game creator --- */
+        System.out.println("Press enter for start game.");
+        scanner.nextLine();
         Game game = new Game(new Id(Math.abs(rand.nextInt())), player, opponent);
         Player currentPlayer = player;
         /* --- Game creator --- */
@@ -99,6 +114,7 @@ public class App {
             System.out.printf("%s wins!\n", second.getName());
             secondPlayerWinsOfRounds++;
         }
+        System.out.println(firstPlayerWinsOfRounds + "/" + secondPlayerWinsOfRounds);
         game.reloadField();
         field = game.getField();
         winnerOfRound = gameCycle(field, second, first);
@@ -109,6 +125,7 @@ public class App {
             System.out.printf("%s wins!\n", second.getName());
             secondPlayerWinsOfRounds++;
         }
+        System.out.println(firstPlayerWinsOfRounds + "/" + secondPlayerWinsOfRounds);
         if (firstPlayerWinsOfRounds == secondPlayerWinsOfRounds) {
             game.reloadField();
             field = game.getField();
@@ -120,19 +137,27 @@ public class App {
                 System.out.printf("%s wins!\n", second.getName());
                 secondPlayerWinsOfRounds++;
             }
+            System.out.println(firstPlayerWinsOfRounds + "/" + secondPlayerWinsOfRounds);
         }
-        System.out.println(firstPlayerWinsOfRounds + " " + secondPlayerWinsOfRounds);
         if (firstPlayerWinsOfRounds > secondPlayerWinsOfRounds) {
             if (first.equals(you)) {
                 System.out.println("Congratulations! You win!");
+                you.win();
+                opponent.fail();
             } else {
                 System.out.println("Congratulations! You lose!");
+                you.fail();
+                opponent.win();
             }
         } else {
             if (second.equals(you)) {
                 System.out.println("Congratulations! You win!");
+                you.win();
+                opponent.fail();
             } else {
                 System.out.println("Congratulations! You lose!");
+                you.fail();
+                opponent.win();
             }
         }
     }
@@ -163,67 +188,11 @@ public class App {
             if (firstPlayerStatus) {
                 return first.getTeam();
             }
-            // first user2
             if (secondPlayerStatus) {
                 return second.getTeam();
             }
         }
     }
-
-    /*static void gameCycleProto(Game game, Player player, Player opponent) {
-        int gameCycle = 0;
-        int[][] field = null;
-        Player currentPlayer = player;
-        int playerRoundWins = 0, opponentRoundWins = 0;
-        String input;
-        while (playerRoundWins < 2 && opponentRoundWins < 2) {
-            if (isWin(field)) {
-                game.reloadField();
-                System.out.println("Winner of round is " + currentPlayer.getName());
-                if (currentPlayer.equals(player)) {
-                    playerRoundWins++;
-                    currentPlayer = opponent;
-                    continue;
-                } else {
-                    opponentRoundWins++;
-                    currentPlayer = player;
-                    continue;
-                }
-            }
-            if (gameCycle%2 == 0) {
-                currentPlayer = player;
-            } else {
-                currentPlayer = opponent;
-            }
-            System.out.println("Field:");
-            field = game.getField();
-            printField(field);
-            System.out.print("Please, enter coordinates: ");
-            input = scanner.nextLine();
-            String[] coords = input.split(" ");
-            int x = Integer.parseInt(coords[0]);
-            int y = Integer.parseInt(coords[1]);
-            System.out.println("Current player is " + currentPlayer.getName());
-            System.out.println("Your opponent is " + opponent.getName());
-            if (currentPlayer.getName().equals(player.getName())) {
-                if (x >= 0 && x <= 2 && y >= 0 && y <= 2 && !(field[x][y]==1 || field[x][y]==2)) {
-                    field[x][y] = 1;
-                } else {
-                    System.out.println("Invalid coordinates. Try again.");
-                    continue;
-                }
-            } else {
-                currentPlayer = opponent;
-                if (x >= 0 && x <= 2 && y >= 0 && y <= 2 && !(field[x][y] == 1 || field[x][y] == 2)) {
-                    field[x][y] = 2;
-                } else {
-                    System.out.println("Invalid coordinates. Try again.");
-                    continue;
-                }
-            }
-            gameCycle++;
-        }
-    }*/
 
     static Player opponentRandomizer(Map<String, Player> accounts, Player player) {
         Player opponent = null;
@@ -247,36 +216,6 @@ public class App {
             System.exit(0);
         }
         return opponent;
-    }
-
-    static Map<String, Player> authorization(String login, String password) throws IOException, ClassNotFoundException {
-        Player player;
-        Map<String, Player> accounts = new HashMap<>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("accounts.txt"))) {
-            accounts = (Map<String, Player>) ois.readObject();
-            if (accounts.containsKey(login) && accounts.get(login).getPassword().equals(password)) {
-                player = accounts.get(login);
-                System.out.println("Auth");
-                System.out.println("Account:");
-                System.out.println("Login: " + player.getName());
-                System.out.println("Score: " + player.getScore());
-            } else {
-                System.out.println("Registration");
-                player = new Player(login, password, 0);
-                accounts.put(login, player);
-                try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("accounts.txt"))) {
-                    oos.writeObject(accounts);
-                }
-            }
-        } catch (FileNotFoundException e) {
-            try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(Paths.get("accounts.txt")))) {
-                oos.writeObject(accounts);
-                System.exit(0);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return accounts;
     }
 
     static Player readData(Map<String, Player> accounts) throws IOException, ClassNotFoundException {

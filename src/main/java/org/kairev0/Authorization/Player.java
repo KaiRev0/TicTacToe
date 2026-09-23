@@ -1,4 +1,4 @@
-package org.kairev0;
+package org.kairev0.Authorization;
 
 import java.io.Serializable;
 

@@ -1,5 +1,7 @@
 package org.kairev0;
 
+import org.kairev0.Authorization.Player;
+
 public class Game {
     private final Id id;
     private int[][] field;
