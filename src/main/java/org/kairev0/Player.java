@@ -10,6 +10,7 @@ public class Player implements Serializable {
     private int score;
     private int countOfWins;
     private int countOfFails;
+    private int team;
 
     public Player(String name, String password, int score) {
         this.name = name;
@@ -17,6 +18,7 @@ public class Player implements Serializable {
         this.score = score;
         this.countOfWins = 0;
         this.countOfFails = 0;
+        this.team = 0;
     }
 
     private void setName(String name) {
@@ -25,6 +27,14 @@ public class Player implements Serializable {
 
     private void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setTeam(int team) {
+        if (team >= 0 && team <= 2) {
+            this.team = team;
+        } else {
+            throw new IllegalArgumentException("Invalid team");
+        }
     }
 
     private void addScore() {
@@ -66,6 +76,10 @@ public class Player implements Serializable {
 
     private int getCountOfFails() {
         return countOfFails;
+    }
+
+    public int getTeam() {
+        return team;
     }
 
     @Override

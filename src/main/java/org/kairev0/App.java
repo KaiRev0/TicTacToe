@@ -45,16 +45,137 @@ public class App {
 
         /* --- Game creator --- */
         Game game = new Game(new Id(Math.abs(rand.nextInt())), player, opponent);
-        String input;
-        int[][] field = null;
-        int gameCycle = 0;
         Player currentPlayer = player;
         /* --- Game creator --- */
 
         /* --- game cycle --- */
-        System.out.println("Current player is " + currentPlayer.getName());
+        System.out.println("You is " + currentPlayer.getName());
         System.out.println("Your opponent is " + opponent.getName());
+        GameRoom(game, player, opponent);
+        /* --- game cycle --- */
+
+        /* --- result --- */
+        /*printField(field);
+        if (currentPlayer.equals(player)) {
+            player.win();
+            opponent.fail();
+        } else {
+            player.fail();
+            opponent.win();
+        }
+        System.out.println(player.getName() + ": " + player.getScore());
+        System.out.println(opponent.getName() + ": " + opponent.getScore());
+        if (playerRoundWins >= 2) {
+            System.out.printf("%s wins!\n", player.getName());
+        } else {
+            System.out.printf("%s wins!\n", opponent.getName());
+        }
+        System.out.println(playerRoundWins + "/" + opponentRoundWins);*/
+        scanner.close();
+        /* --- result --- */
+    }
+
+    // 1. Соединить двух игроков вместе
+    // 2. Случайным образом определить первого игрока
+    // 3. Сыграть один раунд
+    // 4. Определить победителя раунда
+    // 5. Поменять первого игрока со вторым местами
+    // 6. Провести второй раунд
+
+    static void GameRoom(Game game, Player you, Player opponent) {
+        List<Player> players = new ArrayList<>(Arrays.asList(you, opponent));
+        Collections.shuffle(players);
+        Player first = players.get(0);
+        Player second = players.get(1);
+        first.setTeam(1);
+        second.setTeam(2);
+        int firstPlayerWinsOfRounds = 0, secondPlayerWinsOfRounds = 0;
+        int[][] field = game.getField();
+        int winnerOfRound = gameCycle(field, first, second);
+        if (winnerOfRound == 1) {
+            System.out.printf("%s wins!\n", first.getName());
+            firstPlayerWinsOfRounds++;
+        } else {
+            System.out.printf("%s wins!\n", second.getName());
+            secondPlayerWinsOfRounds++;
+        }
+        game.reloadField();
+        field = game.getField();
+        winnerOfRound = gameCycle(field, second, first);
+        if (winnerOfRound == 1) {
+            System.out.printf("%s wins!\n", first.getName());
+            firstPlayerWinsOfRounds++;
+        } else {
+            System.out.printf("%s wins!\n", second.getName());
+            secondPlayerWinsOfRounds++;
+        }
+        if (firstPlayerWinsOfRounds == secondPlayerWinsOfRounds) {
+            game.reloadField();
+            field = game.getField();
+            winnerOfRound = gameCycle(field, first, second);
+            if (winnerOfRound == 1) {
+                System.out.printf("%s wins!\n", first.getName());
+                firstPlayerWinsOfRounds++;
+            } else {
+                System.out.printf("%s wins!\n", second.getName());
+                secondPlayerWinsOfRounds++;
+            }
+        }
+        System.out.println(firstPlayerWinsOfRounds + " " + secondPlayerWinsOfRounds);
+        if (firstPlayerWinsOfRounds > secondPlayerWinsOfRounds) {
+            if (first.equals(you)) {
+                System.out.println("Congratulations! You win!");
+            } else {
+                System.out.println("Congratulations! You lose!");
+            }
+        } else {
+            if (second.equals(you)) {
+                System.out.println("Congratulations! You win!");
+            } else {
+                System.out.println("Congratulations! You lose!");
+            }
+        }
+    }
+
+    static int gameCycle(int[][] field, Player first, Player second) {
+        Player currentPlayer = first;
+        boolean firstPlayerStatus= false;
+        boolean secondPlayerStatus = false;
+        while (true) {
+            System.out.println("Current player is " + currentPlayer.getName());
+            printField(field);
+            String[] coords = scanner.nextLine().split(" ");
+            int x = Integer.parseInt(coords[0]);
+            int y = Integer.parseInt(coords[1]);
+            if (x < 0 || x > 2 || y < 0 || y > 2 || field[x][y]==1 || field[x][y]==2) {
+                System.out.println("Invalid coordinates. Try again.");
+                continue;
+            }
+            if (currentPlayer.equals(first)) {
+                field[x][y] = first.getTeam();
+                currentPlayer = second;
+                firstPlayerStatus = isWin(field, first.getTeam());
+            } else {
+                field[x][y] = second.getTeam();
+                currentPlayer = first;
+                secondPlayerStatus = isWin(field, second.getTeam());
+            }
+            if (firstPlayerStatus) {
+                return first.getTeam();
+            }
+            // first user2
+            if (secondPlayerStatus) {
+                return second.getTeam();
+            }
+        }
+    }
+
+    /*static void gameCycleProto(Game game, Player player, Player opponent) {
+        int gameCycle = 0;
+        int[][] field = null;
+        Player currentPlayer = player;
         int playerRoundWins = 0, opponentRoundWins = 0;
+        String input;
         while (playerRoundWins < 2 && opponentRoundWins < 2) {
             if (isWin(field)) {
                 game.reloadField();
@@ -102,28 +223,7 @@ public class App {
             }
             gameCycle++;
         }
-        /* --- game cycle --- */
-
-        /* --- result --- */
-        printField(field);
-        if (currentPlayer.equals(player)) {
-            player.win();
-            opponent.fail();
-        } else {
-            player.fail();
-            opponent.win();
-        }
-        System.out.println(player.getName() + ": " + player.getScore());
-        System.out.println(opponent.getName() + ": " + opponent.getScore());
-        if (playerRoundWins >= 2) {
-            System.out.printf("%s wins!\n", player.getName());
-        } else {
-            System.out.printf("%s wins!\n", opponent.getName());
-        }
-        System.out.println(playerRoundWins + "/" + opponentRoundWins);
-        scanner.close();
-        /* --- result --- */
-    }
+    }*/
 
     static Player opponentRandomizer(Map<String, Player> accounts, Player player) {
         Player opponent = null;
@@ -195,7 +295,7 @@ public class App {
         }
     }
 
-    static boolean isWin(int[][] field) {
+    static boolean isWin(int[][] field, int team) {
         if (field != null) {
             boolean flag = true;
             for (int[] ints : field) {
@@ -209,7 +309,7 @@ public class App {
                 System.out.println("There is no winner!");
                 return true;
             }
-            return /* Player 1 */
+            if (team == 1) return /* Player 1 */
                     field[0][0] == 1 && field[0][0] == field[1][0] && field[1][0] == field[2][0] ||
                     field[0][1] == 1 && field[0][1] == field[1][1] && field[1][1] == field[2][1] ||
                     field[0][2] == 1 && field[0][2] == field[1][2] && field[1][2] == field[2][2] ||
@@ -217,8 +317,9 @@ public class App {
                     field[1][0] == 1 && field[1][0] == field[1][1] && field[1][1] == field[1][2] ||
                     field[2][0] == 1 && field[2][0] == field[2][1] && field[2][1] == field[2][2] ||
                     field[0][0] == 1 && field[0][0] == field[1][1] && field[1][1] == field[2][2] ||
-                    field[2][0] == 1 && field[2][0] == field[1][1] && field[1][1] == field[0][2] ||
+                    field[2][0] == 1 && field[2][0] == field[1][1] && field[1][1] == field[0][2];
                     /* Player 2 */
+            if (team == 2) return
                     field[0][0] == 2 && field[0][0] == field[1][0] && field[1][0] == field[2][0] ||
                     field[0][1] == 2 && field[0][1] == field[1][1] && field[1][1] == field[2][1] ||
                     field[0][2] == 2 && field[0][2] == field[1][2] && field[1][2] == field[2][2] ||
@@ -232,68 +333,258 @@ public class App {
     }
 
     static void isWinTest() {
+        /* --- EMPTY --- */
         int[][] field = new int[3][3];
-        check(false, isWin(field));
+        check(false, isWin(field, 1));
+
+        /* --- WIN TEAM 1 --- */
         field = new int[][]{
                 new int[]{1, 0, 0},
                 new int[]{1, 0, 0},
                 new int[]{1, 0, 0}
         };
-        check(true, isWin(field));
+        check(true, isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 1, 0},
                 new int[]{0, 1, 0},
                 new int[]{0, 1, 0}
         };
-        check(true, isWin(field));
+        check(true, isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 0, 1},
                 new int[]{0, 0, 1},
                 new int[]{0, 0, 1}
         };
-        check(true, isWin(field));
+        check(true, isWin(field, 1));
         field = new int[][]{
                 new int[]{1, 1, 1},
                 new int[]{0, 0, 0},
                 new int[]{0, 0, 0}
         };
-        check(true, isWin(field));
+        check(true, isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 0, 0},
                 new int[]{1, 1, 1},
                 new int[]{0, 0, 0}
         };
-        check(true, isWin(field));
+        check(true, isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 0, 0},
                 new int[]{0, 0, 0},
                 new int[]{1, 1, 1}
         };
-        check(true, isWin(field));
+        check(true, isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 0, 1},
                 new int[]{0, 1, 0},
                 new int[]{1, 0, 0}
         };
-        check(true, isWin(field));
+        check(true, isWin(field, 1));
         field = new int[][]{
                 new int[]{1, 0, 0},
                 new int[]{0, 1, 0},
                 new int[]{0, 0, 1}
         };
-        check(true, isWin(field));
+        check(true, isWin(field, 1));
         field = new int[][]{
                 new int[]{1, 0, 1},
                 new int[]{0, 1, 0},
+                new int[]{2, 2, 2}
+        };
+        check(false, isWin(field, 1));
+        field = new int[][]{
+                new int[]{1, 0, 2},
+                new int[]{0, 1, 2},
+                new int[]{1, 0, 2}
+        };
+        check(false, isWin(field, 1));
+
+        /* --- FAIL TEAM 1 --- */
+        field = new int[][]{
+                new int[]{2, 0, 0},
+                new int[]{2, 0, 0},
+                new int[]{2, 0, 0}
+        };
+        check(false, isWin(field, 1));
+        field = new int[][]{
+                new int[]{0, 2, 0},
+                new int[]{0, 2, 0},
+                new int[]{0, 2, 0}
+        };
+        check(false, isWin(field, 1));
+        field = new int[][]{
+                new int[]{0, 0, 2},
+                new int[]{0, 0, 2},
+                new int[]{0, 0, 2}
+        };
+        check(false, isWin(field, 1));
+        field = new int[][]{
+                new int[]{2, 2, 2},
+                new int[]{0, 0, 0},
                 new int[]{0, 0, 0}
         };
-        check(false, isWin(field));
+        check(false, isWin(field, 1));
+        field = new int[][]{
+                new int[]{0, 0, 0},
+                new int[]{2, 2, 2},
+                new int[]{0, 0, 0}
+        };
+        check(false, isWin(field, 1));
+        field = new int[][]{
+                new int[]{0, 0, 0},
+                new int[]{0, 0, 0},
+                new int[]{2, 2, 2}
+        };
+        check(false, isWin(field, 1));
+        field = new int[][]{
+                new int[]{0, 0, 2},
+                new int[]{0, 2, 0},
+                new int[]{2, 0, 0}
+        };
+        check(false, isWin(field, 1));
+        field = new int[][]{
+                new int[]{2, 0, 0},
+                new int[]{0, 2, 0},
+                new int[]{0, 0, 2}
+        };
+        check(false, isWin(field, 1));
+        field = new int[][]{
+                new int[]{2, 0, 2},
+                new int[]{0, 2, 0},
+                new int[]{1, 1, 1}
+        };
+        check(true, isWin(field, 1));
+        field = new int[][]{
+                new int[]{2, 0, 1},
+                new int[]{0, 2, 1},
+                new int[]{2, 0, 1}
+        };
+        check(true, isWin(field, 1));
+
+        /* --- FAIL TEAM 2 --- */
         field = new int[][]{
                 new int[]{1, 0, 0},
+                new int[]{1, 0, 0},
+                new int[]{1, 0, 0}
+        };
+        check(false, isWin(field, 2));
+        field = new int[][]{
+                new int[]{0, 1, 0},
+                new int[]{0, 1, 0},
+                new int[]{0, 1, 0}
+        };
+        check(false, isWin(field, 2));
+        field = new int[][]{
+                new int[]{0, 0, 1},
+                new int[]{0, 0, 1},
+                new int[]{0, 0, 1}
+        };
+        check(false, isWin(field, 2));
+        field = new int[][]{
+                new int[]{1, 1, 1},
+                new int[]{0, 0, 0},
+                new int[]{0, 0, 0}
+        };
+        check(false, isWin(field, 2));
+        field = new int[][]{
+                new int[]{0, 0, 0},
+                new int[]{1, 1, 1},
+                new int[]{0, 0, 0}
+        };
+        check(false, isWin(field, 2));
+        field = new int[][]{
+                new int[]{0, 0, 0},
+                new int[]{0, 0, 0},
+                new int[]{1, 1, 1}
+        };
+        check(false, isWin(field, 2));
+        field = new int[][]{
+                new int[]{0, 0, 1},
                 new int[]{0, 1, 0},
                 new int[]{1, 0, 0}
         };
-        check(false, isWin(field));
+        check(false, isWin(field, 2));
+        field = new int[][]{
+                new int[]{1, 0, 0},
+                new int[]{0, 1, 0},
+                new int[]{0, 0, 1}
+        };
+        check(false, isWin(field, 2));
+        field = new int[][]{
+                new int[]{1, 0, 1},
+                new int[]{0, 1, 0},
+                new int[]{2, 2, 2}
+        };
+        check(true, isWin(field, 2));
+        field = new int[][]{
+                new int[]{1, 0, 2},
+                new int[]{0, 1, 2},
+                new int[]{1, 0, 2}
+        };
+        check(true, isWin(field, 2));
+
+        /* --- WIN TEAM 2 --- */
+        field = new int[][]{
+                new int[]{2, 0, 0},
+                new int[]{2, 0, 0},
+                new int[]{2, 0, 0}
+        };
+        check(true, isWin(field, 2));
+        field = new int[][]{
+                new int[]{0, 2, 0},
+                new int[]{0, 2, 0},
+                new int[]{0, 2, 0}
+        };
+        check(true, isWin(field, 2));
+        field = new int[][]{
+                new int[]{0, 0, 2},
+                new int[]{0, 0, 2},
+                new int[]{0, 0, 2}
+        };
+        check(true, isWin(field, 2));
+        field = new int[][]{
+                new int[]{2, 2, 2},
+                new int[]{0, 0, 0},
+                new int[]{0, 0, 0}
+        };
+        check(true, isWin(field, 2));
+        field = new int[][]{
+                new int[]{0, 0, 0},
+                new int[]{2, 2, 2},
+                new int[]{0, 0, 0}
+        };
+        check(true, isWin(field, 2));
+        field = new int[][]{
+                new int[]{0, 0, 0},
+                new int[]{0, 0, 0},
+                new int[]{2, 2, 2}
+        };
+        check(true, isWin(field, 2));
+        field = new int[][]{
+                new int[]{0, 0, 2},
+                new int[]{0, 2, 0},
+                new int[]{2, 0, 0}
+        };
+        check(true, isWin(field, 2));
+        field = new int[][]{
+                new int[]{2, 0, 0},
+                new int[]{0, 2, 0},
+                new int[]{0, 0, 2}
+        };
+        check(true, isWin(field, 2));
+        field = new int[][]{
+                new int[]{2, 0, 2},
+                new int[]{0, 2, 0},
+                new int[]{1, 1, 1}
+        };
+        check(false, isWin(field, 2));
+        field = new int[][]{
+                new int[]{2, 0, 1},
+                new int[]{0, 2, 1},
+                new int[]{2, 0, 1}
+        };
+        check(false, isWin(field, 2));
+
         System.out.println("All tests passed");
     }
 
