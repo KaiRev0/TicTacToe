@@ -2,7 +2,7 @@ package org.kairev0;
 
 public class Game {
     private final Id id;
-    private final int[][] field;
+    private int[][] field;
     private Player firstPlayer;
     private Player secondPlayer;
 
@@ -11,6 +11,10 @@ public class Game {
         this.field = new int[3][3];
         this.firstPlayer = firstPlayer;
         this.secondPlayer = secondPlayer;
+    }
+
+    public void reloadField() {
+        field = new int[3][3];
     }
 
     private void setFirstPlayer(Player firstPlayer) {

@@ -27,16 +27,21 @@ public class Player implements Serializable {
         this.password = password;
     }
 
-    private void setScore(int score) {
-        this.score = score;
+    private void addScore() {
+        score += 10;
     }
 
-    private void setCountOfWins(int countOfWins) {
-        this.countOfWins = countOfWins;
+    public void win() {
+        addScore();
+        countOfWins++;
     }
 
-    private void setCountOfFails(int countOfFails) {
-        this.countOfFails = countOfFails;
+    public void fail() {
+        countOfFails++;
+    }
+
+    public double wf() {
+        return countOfWins*1.0/countOfFails;
     }
 
     public String getName() {
