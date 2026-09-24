@@ -1,4 +1,4 @@
-package org.kairev0.Authorization;
+package org.kairev0.Models;
 
 import java.io.Serializable;
 
@@ -70,11 +70,11 @@ public class Player implements Serializable {
         return name;
     }
 
-    private int getCountOfWins() {
+    public int getCountOfWins() {
         return countOfWins;
     }
 
-    private int getCountOfFails() {
+    public int getCountOfFails() {
         return countOfFails;
     }
 

@@ -1,6 +1,6 @@
 package org.kairev0;
 
-import org.kairev0.Authorization.Player;
+import org.kairev0.Models.Player;
 
 public class Game {
     private final Id id;
@@ -12,7 +12,7 @@ public class Game {
         this.id = id;
         this.field = new int[3][3];
         this.firstPlayer = firstPlayer;
-        this.secondPlayer = secondPlayer;
+        this.secondPlayer = null;
     }
 
     public void reloadField() {
