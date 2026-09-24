@@ -3,6 +3,7 @@ package org.kairev0.Client;
 import org.kairev0.Models.Player;
 import org.kairev0.Server.ServerMain;
 import org.kairev0.Services.DataService;
+import org.kairev0.Services.GameService;
 
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -39,6 +40,7 @@ public class ClientMain {
                 System.out.println("Invalid login or password!");
             }
         }
+        serverMain.update();
         /* --- authorization --- */
 
         /* --- profile --- */
@@ -56,8 +58,19 @@ public class ClientMain {
             System.out.println();
             String option = scanner.nextLine();
             if (option.equals("1")) {
-                System.out.println("Start game");
-                serverMain.createGameSession(player);
+                System.out.println("Start game.");
+                System.out.println("Waiting for player to start game.");
+                GameService service = serverMain.openGameSession(player);
+                Player winner = service.startGame();
+                if (winner.equals(player)) {
+                    System.out.println("Congratulations! You win!");
+                    player.win();
+                } else {
+                    System.out.println("Congratulations! You lose!");
+                    player.fail();
+                }
+                serverMain.closeGameSession(player);
+                System.out.println("End game.");
             } else if (option.equals("2")) {
                 isExit = true;
             } else {

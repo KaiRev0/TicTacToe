@@ -3,12 +3,20 @@ package org.kairev0.Server;
 import org.kairev0.Models.Player;
 import org.kairev0.Services.DataService;
 import org.kairev0.Services.GameService;
+import org.kairev0.Utils.Utils;
 
 import java.io.FileNotFoundException;
 import java.util.*;
 
 public class ServerMain {
-    private Map<String, Player> players = new HashMap<>();
+    private Map<String, Player> players;
+    private List<Player> onlinePlayers;
+
+    public ServerMain() {
+        this.players = new HashMap<>();
+        this.onlinePlayers = new ArrayList<>();
+        this.onlinePlayers.add(new Player("TestPlayer", "Password", 0));
+    }
 
     public void run() throws FileNotFoundException {
         // Инициализация базы данных
@@ -17,30 +25,35 @@ public class ServerMain {
         this.players = DataService.getAllPlayers();
     }
 
-    public void createGameSession(Player player) {
-        Player opponent = opponentRandomizer(players, player);
-        GameService gameService = new GameService(player, opponent);
+    public void update() throws FileNotFoundException {
+        this.players = DataService.getAllPlayers();
     }
 
-    private Player opponentRandomizer(Map<String, Player> accounts, Player player) {
+    public GameService openGameSession(Player player) {
+        onlinePlayers.add(player);
+        Player opponent = opponentRandomizer(onlinePlayers, player);
+        GameService gameService = new GameService(player, opponent);
+        gameService.isWinTest();
+        return gameService;
+    }
+
+    public void closeGameSession(Player player) {
+        onlinePlayers.remove(player);
+    }
+
+    private Player opponentRandomizer(List<Player> onlinePlayers, Player player) {
         Player opponent = null;
-        if (accounts != null && !accounts.isEmpty()) {
-            List<Player> players = new ArrayList<>(accounts.values());
-            Collections.shuffle(players);
-            opponent = players.get(0);
-            if (!accounts.isEmpty()) {
-                int tries = 0;
-                while (opponent.equals(player) && tries++ < 10) {
-                    Collections.shuffle(players);
-                    opponent = players.get(0);
-                }
-                if (opponent.equals(player)) {
-                    System.out.println("Tries are exhausted");
-                    System.exit(0);
-                }
+        if (onlinePlayers != null && !onlinePlayers.isEmpty()) {
+            int tries = 0;
+            while ((opponent == null || opponent.equals(player)) && tries++ < 10) {
+                opponent = onlinePlayers.get(Utils.random.nextInt(onlinePlayers.size()));
             }
+            if (Objects.equals(opponent, player)) {
+                System.out.println("Tries are exhausted");
+                System.exit(0);
+           }
         } else {
-            System.out.println("Account list is empty");
+            System.out.println("Nobody is online");
             System.exit(0);
         }
         return opponent;
