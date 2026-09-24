@@ -4,6 +4,7 @@ import org.kairev0.Models.Player;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +18,9 @@ public class DataService {
     // 4. Впустить пользователя в его личный кабинет
 
     public static void initialization() {
-        if (!Files.exists(Paths.get("accounts.txt"))) {
-            try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(Paths.get("accounts.txt")))) {
+        Path path = Paths.get("accounts.txt");
+        if (!Files.exists(path)) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path))) {
                 Map<String, Player> players = new HashMap<>();
                 oos.writeObject(players);
             } catch (IOException e) {
@@ -41,10 +43,9 @@ public class DataService {
         return null;
     }
 
-    public static Map<String, Player> getAllPlayers() throws FileNotFoundException {
+    public static Map<String, Player> getAllPlayers() {
         try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(Paths.get("accounts.txt")))) {
-            Map<String, Player> players = (Map<String, Player>) ois.readObject();
-            return players;
+            return (Map<String, Player>) ois.readObject();
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
@@ -52,7 +53,7 @@ public class DataService {
         }
     }
 
-    public static void save(Player player) throws FileNotFoundException {
+    public static void save(Player player) {
         Map<String, Player> players = getAllPlayers();
         try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(Paths.get("accounts.txt")))) {
             players.put(player.getName(), player);

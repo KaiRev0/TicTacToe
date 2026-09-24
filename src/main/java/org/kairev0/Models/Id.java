@@ -1,4 +1,4 @@
-package org.kairev0;
+package org.kairev0.Models;
 
 public class Id {
     private int id;

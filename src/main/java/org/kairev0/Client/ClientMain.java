@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class ClientMain {
     private static final Scanner scanner = new Scanner(System.in);
-    private ServerMain serverMain;
+    private final ServerMain serverMain;
 
     public ClientMain(ServerMain serverMain) {
         this.serverMain = serverMain;
@@ -20,7 +20,7 @@ public class ClientMain {
         /* --- authorization --- */
         // Приветствуем пользователя
         System.out.println("Welcome to Game!");
-        String login = "";
+        String login;
         Player player = null;
         boolean isExit = false;
         while (player == null) {

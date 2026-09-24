@@ -10,7 +10,7 @@ import java.util.*;
 
 public class ServerMain {
     private Map<String, Player> players;
-    private List<Player> onlinePlayers;
+    private final List<Player> onlinePlayers;
 
     public ServerMain() {
         this.players = new HashMap<>();
@@ -32,9 +32,7 @@ public class ServerMain {
     public GameService openGameSession(Player player) {
         onlinePlayers.add(player);
         Player opponent = opponentRandomizer(onlinePlayers, player);
-        GameService gameService = new GameService(player, opponent);
-        gameService.isWinTest();
-        return gameService;
+        return new GameService(player, opponent);
     }
 
     public void closeGameSession(Player player) {

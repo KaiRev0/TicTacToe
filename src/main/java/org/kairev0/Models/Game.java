@@ -1,6 +1,4 @@
-package org.kairev0;
-
-import org.kairev0.Models.Player;
+package org.kairev0.Models;
 
 public class Game {
     private final Id id;
@@ -8,7 +6,7 @@ public class Game {
     private Player firstPlayer;
     private Player secondPlayer;
 
-    public Game(Id id, Player firstPlayer, Player secondPlayer) {
+    public Game(Id id, Player firstPlayer) {
         this.id = id;
         this.field = new int[3][3];
         this.firstPlayer = firstPlayer;
