@@ -3,7 +3,7 @@ package org.kairev0.Client;
 import org.kairev0.Models.Player;
 import org.kairev0.Server.ServerMain;
 import org.kairev0.Services.DataService;
-import org.kairev0.Services.GameService;
+import org.kairev0.Services.GameServiceOffline;
 
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -60,7 +60,7 @@ public class ClientMain {
             if (option.equals("1")) {
                 System.out.println("Start game.");
                 System.out.println("Waiting for player to start game.");
-                GameService service = serverMain.openGameSession(player);
+                GameServiceOffline service = serverMain.openGameSession(player);
                 Player winner = service.startGame();
                 if (winner.equals(player)) {
                     System.out.println("Congratulations! You win!");

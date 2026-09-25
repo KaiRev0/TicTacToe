@@ -22,9 +22,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.kairev0.Models.Player;
 import org.kairev0.Services.DataService;
+import org.kairev0.Services.GameService;
+import org.kairev0.Utils.Utils;
 
-import javax.xml.crypto.Data;
-import java.net.InetAddress;
 import java.util.*;
 
 /**
@@ -56,25 +56,66 @@ public class MyServerHandler extends SimpleChannelInboundHandler<String> {
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String request) throws Exception {
         // Generate and write a response.
-        String response = "";
+        String response;
         boolean close = false;
+        Player player = ctx.channel().attr(MyServer.PLAYER).get();
         if (request.isEmpty()) {
             response = "Please type something.\r\n";
-        } else if ("exit".equals(request.toLowerCase())) {
+        } else if ("exit".equalsIgnoreCase(request)) {
             response = "Have a good day!\r\n";
             close = true;
-        } else if (request.contains("&")) {
-            String[] input = request.split("&");
-            String login = input[0];
-            String password = input[1];
-            Player player = DataService.authorization(login, password);
-
+        } else if (player == null && request.contains("&")) {
+            String[] accountData = request.split("&");
+            String login = accountData[0];
+            String password = accountData[1];
+            player = DataService.authorization(login, password);
             if (player == null) {
                 response = "Invalid login or password!\r\n";
             } else {
-                response = "Success!\r\n";
+                ctx.channel().attr(MyServer.PLAYER).set(player);
+                response = "Success!\n";
+                response += "\nProfile\n" +
+                        "Login: " + player.getName() + "\n" +
+                        "Score: " + player.getScore() + "\n" +
+                        "Count of wins: " + player.getCountOfWins() + "\n" +
+                        "Count of losses: " + player.getCountOfFails() + "\n" +
+                        "KD: " + (player.getCountOfWins() * 1.0 / (player.getCountOfFails() + player.getCountOfWins())) + "\n" +
+                        "Choice option:" + "\n" +
+                        "\"me\"\t" + "\n" +
+                        "\"start\"\t" + "\n" +
+                        "\"exit\"\t\n\r\n";
+                ctx.channel().attr(MyServer.PLAYER).set(player);
             }
             this.players = DataService.getAllPlayers();
+        } else if (player != null && "me".equalsIgnoreCase(request)) {
+            response = "\nProfile\n" +
+                    "Login: " + player.getName() + "\n" +
+                    "Score: " + player.getScore() + "\n" +
+                    "Count of wins: " + player.getCountOfWins() + "\n" +
+                    "Count of losses: " + player.getCountOfFails() + "\n" +
+                    "KD: " + (player.getCountOfWins() * 1.0 / (player.getCountOfFails() + player.getCountOfWins())) + "\n" +
+                    "Choice option:" + "\n" +
+                    "\"start\"\t" + "\n" +
+                    "\"exit\"\t\n\r\n";
+        } else if (player != null && "start".equalsIgnoreCase(request)) {
+            response = "Start game.\n" +
+                    "Waiting for player to start game.\n";
+            GameService service = openGameSession(player);
+            if (service == null) {
+                response = "Tries are exhausted. Nobody online.";
+            } else {
+                response += "game\n";
+                ctx.channel().attr(MyServer.GAME).set(service);
+            }
+            response += "\r\n";
+        } else {
+            response = "Unknown command\r\n";
+        }
+
+        if (player != null && ctx.channel().attr(MyServer.GAME).get() != null) {
+            System.out.println("Activate game");
+            GameService service = ctx.channel().attr(MyServer.GAME).get();
+            service.startGame(ctx, request);
         }
 
         // We do not need to write a ChannelBuffer here.
@@ -86,6 +127,35 @@ public class MyServerHandler extends SimpleChannelInboundHandler<String> {
         if (close) {
             future.addListener(ChannelFutureListener.CLOSE);
         }
+    }
+
+    private void closeGameSession(Player player) {
+        onlinePlayers.remove(player);
+    }
+
+    private GameService openGameSession(Player player) {
+        onlinePlayers.add(player);
+        Player opponent = opponentRandomizer(onlinePlayers, player);
+        if (opponent == null) {
+            return null;
+        }
+        return new GameService(player, opponent);
+    }
+
+    private Player opponentRandomizer(List<Player> onlinePlayers, Player player) {
+        Player opponent = null;
+        if (onlinePlayers != null && !onlinePlayers.isEmpty()) {
+            int tries = 0;
+            while ((opponent == null || opponent.equals(player)) && tries++ < 10) {
+                opponent = onlinePlayers.get(Utils.random.nextInt(onlinePlayers.size()));
+            }
+            if (Objects.equals(opponent, player)) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+        return opponent;
     }
 
     @Override

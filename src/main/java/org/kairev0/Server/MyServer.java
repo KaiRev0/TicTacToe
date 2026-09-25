@@ -24,6 +24,9 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
+import io.netty.util.AttributeKey;
+import org.kairev0.Models.Player;
+import org.kairev0.Services.GameService;
 
 /**
  * Simplistic telnet server.
@@ -32,6 +35,8 @@ public final class MyServer {
 
     static final boolean SSL = System.getProperty("ssl") != null;
     static final int PORT = Integer.parseInt(System.getProperty("port", SSL? "8992" : "8023"));
+    static final AttributeKey<Player> PLAYER = AttributeKey.valueOf("player");
+    static final AttributeKey<GameService> GAME = AttributeKey.valueOf("game");
 
     public static void main(String[] args) throws Exception {
         // Configure SSL.

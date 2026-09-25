@@ -2,7 +2,7 @@ package org.kairev0.Server;
 
 import org.kairev0.Models.Player;
 import org.kairev0.Services.DataService;
-import org.kairev0.Services.GameService;
+import org.kairev0.Services.GameServiceOffline;
 import org.kairev0.Utils.Utils;
 
 import java.io.FileNotFoundException;
@@ -29,10 +29,10 @@ public class ServerMain {
         this.players = DataService.getAllPlayers();
     }
 
-    public GameService openGameSession(Player player) {
+    public GameServiceOffline openGameSession(Player player) {
         onlinePlayers.add(player);
         Player opponent = opponentRandomizer(onlinePlayers, player);
-        return new GameService(player, opponent);
+        return new GameServiceOffline(player, opponent);
     }
 
     public void closeGameSession(Player player) {
