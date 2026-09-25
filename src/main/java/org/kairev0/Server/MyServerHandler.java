@@ -22,7 +22,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.kairev0.Models.Player;
 import org.kairev0.Services.DataService;
-import org.kairev0.Services.GameService;
+import org.kairev0.Services.GameServiceOnline;
 import org.kairev0.Utils.Utils;
 
 import java.util.*;
@@ -32,13 +32,15 @@ import java.util.*;
  */
 @Sharable
 public class MyServerHandler extends SimpleChannelInboundHandler<String> {
-    private Map<String, Player> players;
+    private List<String> players;
     private final List<Player> onlinePlayers;
+    private final ClientManager clientManager;
 
-    public MyServerHandler() {
-        this.players = new HashMap<>();
+    public MyServerHandler(ClientManager clientManager) {
+        this.players = new ArrayList<>();
         this.onlinePlayers = new ArrayList<>();
         this.onlinePlayers.add(new Player("TestPlayer", "Password", 0));
+        this.clientManager = clientManager;
     }
 
     @Override
@@ -50,15 +52,48 @@ public class MyServerHandler extends SimpleChannelInboundHandler<String> {
         // Инициализация базы данных
         DataService.initialization();
         // Получение всех пользователей
-        this.players = DataService.getAllPlayers();
+        //this.players = DataService.getAllPlayers();
+
+        String id = UUID.randomUUID().toString();
+        players.add(id);
+        clientManager.register(id, ctx.channel());
     }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String request) throws Exception {
         // Generate and write a response.
-        String response;
+        String response = "";
         boolean close = false;
+
+        clientManager.connectClients(players.get(0), players.get(1));
+
         Player player = ctx.channel().attr(MyServer.PLAYER).get();
+        int[][] field = ctx.channel().attr(MyServer.FIELD).get();
+        System.out.println(Arrays.deepToString(field));
+        if (player == null) {
+            player = new Player("TestPlayer", "Password", 0);
+            player.setTeam(1);
+            ctx.channel().attr(MyServer.PLAYER).set(player);
+        }
+
+        if (field == null) {
+            field = new int[3][3];
+            ctx.channel().attr(MyServer.FIELD).set(field);
+        }
+
+        String[] coords = request.split(" ");
+        int x = Integer.parseInt(coords[0]);
+        int y = Integer.parseInt(coords[1]);
+        if (x < 0 || x > 2 || y < 0 || y > 2 || field[x][y] == 1 || field[x][y] == 2) {
+            response += "Invalid coordinates. Try again.\n";
+        } else {
+            field[x][y] = player.getTeam();
+        }
+        response += Arrays.deepToString(field) + "\n";
+        response += GameServiceOnline.isWin(field, player.getTeam()) + "\n";
+        response += "\r\n";
+
+        /*Player player = ctx.channel().attr(MyServer.PLAYER).get();
         if (request.isEmpty()) {
             response = "Please type something.\r\n";
         } else if ("exit".equalsIgnoreCase(request)) {
@@ -116,7 +151,7 @@ public class MyServerHandler extends SimpleChannelInboundHandler<String> {
             System.out.println("Activate game");
             GameService service = ctx.channel().attr(MyServer.GAME).get();
             service.startGame(ctx, request);
-        }
+        }*/
 
         // We do not need to write a ChannelBuffer here.
         // We know the encoder inserted at TelnetPipelineFactory will do the conversion.
@@ -133,13 +168,13 @@ public class MyServerHandler extends SimpleChannelInboundHandler<String> {
         onlinePlayers.remove(player);
     }
 
-    private GameService openGameSession(Player player) {
+    private GameServiceOnline openGameSession(Player player) {
         onlinePlayers.add(player);
         Player opponent = opponentRandomizer(onlinePlayers, player);
         if (opponent == null) {
             return null;
         }
-        return new GameService(player, opponent);
+        return new GameServiceOnline(player, opponent);
     }
 
     private Player opponentRandomizer(List<Player> onlinePlayers, Player player) {

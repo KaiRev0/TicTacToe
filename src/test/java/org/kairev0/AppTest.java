@@ -1,6 +1,6 @@
 package org.kairev0;
 
-import org.kairev0.Services.GameServiceOffline;
+import org.kairev0.Services.GameService;
 
 import java.util.Objects;
 
@@ -8,7 +8,7 @@ public class AppTest {
     public static void isWinTest() {
         /* --- EMPTY --- */
         int[][] field = new int[3][3];
-        check(false, GameServiceOffline.isWin(field, 1));
+        check(false, GameService.isWin(field, 1));
 
         /* --- WIN TEAM 1 --- */
         field = new int[][]{
@@ -16,61 +16,61 @@ public class AppTest {
                 new int[]{1, 0, 0},
                 new int[]{1, 0, 0}
         };
-        check(true, GameServiceOffline.isWin(field, 1));
+        check(true, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 1, 0},
                 new int[]{0, 1, 0},
                 new int[]{0, 1, 0}
         };
-        check(true, GameServiceOffline.isWin(field, 1));
+        check(true, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 0, 1},
                 new int[]{0, 0, 1},
                 new int[]{0, 0, 1}
         };
-        check(true, GameServiceOffline.isWin(field, 1));
+        check(true, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{1, 1, 1},
                 new int[]{0, 0, 0},
                 new int[]{0, 0, 0}
         };
-        check(true, GameServiceOffline.isWin(field, 1));
+        check(true, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 0, 0},
                 new int[]{1, 1, 1},
                 new int[]{0, 0, 0}
         };
-        check(true, GameServiceOffline.isWin(field, 1));
+        check(true, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 0, 0},
                 new int[]{0, 0, 0},
                 new int[]{1, 1, 1}
         };
-        check(true, GameServiceOffline.isWin(field, 1));
+        check(true, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 0, 1},
                 new int[]{0, 1, 0},
                 new int[]{1, 0, 0}
         };
-        check(true, GameServiceOffline.isWin(field, 1));
+        check(true, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{1, 0, 0},
                 new int[]{0, 1, 0},
                 new int[]{0, 0, 1}
         };
-        check(true, GameServiceOffline.isWin(field, 1));
+        check(true, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{1, 0, 1},
                 new int[]{0, 1, 0},
                 new int[]{2, 2, 2}
         };
-        check(false, GameServiceOffline.isWin(field, 1));
+        check(false, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{1, 0, 2},
                 new int[]{0, 1, 2},
                 new int[]{1, 0, 2}
         };
-        check(false, GameServiceOffline.isWin(field, 1));
+        check(false, GameService.isWin(field, 1));
 
         /* --- FAIL TEAM 1 --- */
         field = new int[][]{
@@ -78,61 +78,61 @@ public class AppTest {
                 new int[]{2, 0, 0},
                 new int[]{2, 0, 0}
         };
-        check(false, GameServiceOffline.isWin(field, 1));
+        check(false, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 2, 0},
                 new int[]{0, 2, 0},
                 new int[]{0, 2, 0}
         };
-        check(false, GameServiceOffline.isWin(field, 1));
+        check(false, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 0, 2},
                 new int[]{0, 0, 2},
                 new int[]{0, 0, 2}
         };
-        check(false, GameServiceOffline.isWin(field, 1));
+        check(false, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{2, 2, 2},
                 new int[]{0, 0, 0},
                 new int[]{0, 0, 0}
         };
-        check(false, GameServiceOffline.isWin(field, 1));
+        check(false, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 0, 0},
                 new int[]{2, 2, 2},
                 new int[]{0, 0, 0}
         };
-        check(false, GameServiceOffline.isWin(field, 1));
+        check(false, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 0, 0},
                 new int[]{0, 0, 0},
                 new int[]{2, 2, 2}
         };
-        check(false, GameServiceOffline.isWin(field, 1));
+        check(false, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{0, 0, 2},
                 new int[]{0, 2, 0},
                 new int[]{2, 0, 0}
         };
-        check(false, GameServiceOffline.isWin(field, 1));
+        check(false, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{2, 0, 0},
                 new int[]{0, 2, 0},
                 new int[]{0, 0, 2}
         };
-        check(false, GameServiceOffline.isWin(field, 1));
+        check(false, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{2, 0, 2},
                 new int[]{0, 2, 0},
                 new int[]{1, 1, 1}
         };
-        check(true, GameServiceOffline.isWin(field, 1));
+        check(true, GameService.isWin(field, 1));
         field = new int[][]{
                 new int[]{2, 0, 1},
                 new int[]{0, 2, 1},
                 new int[]{2, 0, 1}
         };
-        check(true, GameServiceOffline.isWin(field, 1));
+        check(true, GameService.isWin(field, 1));
 
         /* --- FAIL TEAM 2 --- */
         field = new int[][]{
@@ -140,61 +140,61 @@ public class AppTest {
                 new int[]{1, 0, 0},
                 new int[]{1, 0, 0}
         };
-        check(false, GameServiceOffline.isWin(field, 2));
+        check(false, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{0, 1, 0},
                 new int[]{0, 1, 0},
                 new int[]{0, 1, 0}
         };
-        check(false, GameServiceOffline.isWin(field, 2));
+        check(false, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{0, 0, 1},
                 new int[]{0, 0, 1},
                 new int[]{0, 0, 1}
         };
-        check(false, GameServiceOffline.isWin(field, 2));
+        check(false, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{1, 1, 1},
                 new int[]{0, 0, 0},
                 new int[]{0, 0, 0}
         };
-        check(false, GameServiceOffline.isWin(field, 2));
+        check(false, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{0, 0, 0},
                 new int[]{1, 1, 1},
                 new int[]{0, 0, 0}
         };
-        check(false, GameServiceOffline.isWin(field, 2));
+        check(false, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{0, 0, 0},
                 new int[]{0, 0, 0},
                 new int[]{1, 1, 1}
         };
-        check(false, GameServiceOffline.isWin(field, 2));
+        check(false, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{0, 0, 1},
                 new int[]{0, 1, 0},
                 new int[]{1, 0, 0}
         };
-        check(false, GameServiceOffline.isWin(field, 2));
+        check(false, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{1, 0, 0},
                 new int[]{0, 1, 0},
                 new int[]{0, 0, 1}
         };
-        check(false, GameServiceOffline.isWin(field, 2));
+        check(false, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{1, 0, 1},
                 new int[]{0, 1, 0},
                 new int[]{2, 2, 2}
         };
-        check(true, GameServiceOffline.isWin(field, 2));
+        check(true, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{1, 0, 2},
                 new int[]{0, 1, 2},
                 new int[]{1, 0, 2}
         };
-        check(true, GameServiceOffline.isWin(field, 2));
+        check(true, GameService.isWin(field, 2));
 
         /* --- WIN TEAM 2 --- */
         field = new int[][]{
@@ -202,61 +202,61 @@ public class AppTest {
                 new int[]{2, 0, 0},
                 new int[]{2, 0, 0}
         };
-        check(true, GameServiceOffline.isWin(field, 2));
+        check(true, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{0, 2, 0},
                 new int[]{0, 2, 0},
                 new int[]{0, 2, 0}
         };
-        check(true, GameServiceOffline.isWin(field, 2));
+        check(true, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{0, 0, 2},
                 new int[]{0, 0, 2},
                 new int[]{0, 0, 2}
         };
-        check(true, GameServiceOffline.isWin(field, 2));
+        check(true, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{2, 2, 2},
                 new int[]{0, 0, 0},
                 new int[]{0, 0, 0}
         };
-        check(true, GameServiceOffline.isWin(field, 2));
+        check(true, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{0, 0, 0},
                 new int[]{2, 2, 2},
                 new int[]{0, 0, 0}
         };
-        check(true, GameServiceOffline.isWin(field, 2));
+        check(true, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{0, 0, 0},
                 new int[]{0, 0, 0},
                 new int[]{2, 2, 2}
         };
-        check(true, GameServiceOffline.isWin(field, 2));
+        check(true, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{0, 0, 2},
                 new int[]{0, 2, 0},
                 new int[]{2, 0, 0}
         };
-        check(true, GameServiceOffline.isWin(field, 2));
+        check(true, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{2, 0, 0},
                 new int[]{0, 2, 0},
                 new int[]{0, 0, 2}
         };
-        check(true, GameServiceOffline.isWin(field, 2));
+        check(true, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{2, 0, 2},
                 new int[]{0, 2, 0},
                 new int[]{1, 1, 1}
         };
-        check(false, GameServiceOffline.isWin(field, 2));
+        check(false, GameService.isWin(field, 2));
         field = new int[][]{
                 new int[]{2, 0, 1},
                 new int[]{0, 2, 1},
                 new int[]{2, 0, 1}
         };
-        check(false, GameServiceOffline.isWin(field, 2));
+        check(false, GameService.isWin(field, 2));
 
         System.out.println("All tests passed");
     }

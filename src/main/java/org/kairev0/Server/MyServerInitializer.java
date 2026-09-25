@@ -32,7 +32,7 @@ public class MyServerInitializer extends ChannelInitializer<SocketChannel> {
     private static final StringDecoder DECODER = new StringDecoder();
     private static final StringEncoder ENCODER = new StringEncoder();
 
-    private static final MyServerHandler SERVER_HANDLER = new MyServerHandler();
+    private static final MyServerHandler SERVER_HANDLER = new MyServerHandler(null);
 
     private final SslContext sslCtx;
 
